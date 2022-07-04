@@ -1,0 +1,114 @@
+Step 1: 
+  Install ngrx package 
+    npm i @ngrx/store@13.2.0
+
+Step 2: 
+  Let's work on to setting up a store. To create store data you need reducer.
+
+  So, create counter reducer first. 
+
+  Let's have following logic inside 
+  * reducer is a fn that will take initial state and actions as params 
+
+  import { createReducer, on } from "@ngrx/store";
+
+  export const initialState = 0;
+
+  export const counterReducer = createReducer(
+    initialState
+    // here you need to actions 
+  )
+
+
+Step 3: 
+  to successfully create reducer you need to identify all 
+  possible actions for the feature.
+
+  Have the following code in counter.actions.ts 
+  
+  import { createAction } from "@ngrx/store";
+
+  export const increment = createAction('[COUNTER_INCREMENT]');
+  export const decrement = createAction('[COUNTER_DECREMENT]');
+  export const reset = createAction('[COUNTER_RESET]');
+
+Step 4: 
+  Patch up the actions in reducer. Have the following code 
+  
+  import { createReducer, on } from "@ngrx/store";
+  import { decrement, increment, reset } from "./counter.actions";
+
+  export const initialState = 0; // initial counter value
+
+  export const counterReducer = createReducer(
+    initialState,
+    on(increment, (state) => state + 1),
+    on(decrement, (state) => state - 1),
+    on(reset, (state) => 0),
+  )
+
+  This is need for the whole app. LEt's do it in app.module.ts 
+
+
+Step 5: 
+  Now, we have the essentials building blocks to create store 
+
+  in app.module.ts 
+
+  // Setup NgRx store
+  import { StoreModule } from '@ngrx/store';
+  import { counterReducer } from './counter/counter.reducer';
+
+  // we combine multiple reducer's data to create big store object 
+  const store = {
+    count: counterReducer
+  }
+
+
+  then in @NgModule imports 
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    StoreModule.forRoot(store) // here's the store data 
+  ],
+
+
+Step6: 
+--
+  LEt's now subscribe to the store data in counter.comp.ts  thru the selector 
+
+  count$: Observable<number>;
+
+  constructor( private store: Store<{count: number}>) { 
+    this.count$ = store.select('count');
+    console.log(this.count$);
+  }
+
+Step 7: 
+  Then, display the observables data in counter.comp.html 
+  <h2>Counter Value: {{count$ | async}}</h2>
+
+
+Step 8:
+  Let's work on increment and decrement 
+
+  counter.comp.html
+    <button (click)="handleIncrement()">Increment</button>
+    <button (click)="handleDecrement()">Decrement</button>
+
+  counter.comp.ts 
+    handleIncrement(){
+      console.log('Incrementing...');
+      // Dispatch an action to update store data
+      this.store.dispatch(increment())
+    }
+
+    handleDecrement(){
+      console.log('Incrementing...');
+      // Dispatch an action to update store data
+      this.store.dispatch(decrement())
+    }
+
+
+---
+It's over!
